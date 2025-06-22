@@ -71,14 +71,20 @@ def callback_dispatcher(call):
         user_id = int(data.split("_")[1])
         payment = pending_payments.get(user_id)
         if payment:
+            username = payment['username']
+            # Double bouton
+            markup = types.InlineKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton("✅ REJOINDRE KEVYFLOW AFRICA", url=INVITE_LINK))
+            markup.add(types.InlineKeyboardButton("📩 J’AI REJOINT", callback_data=f"joined_{user_id}_{username}"))
+
             bot.send_message(user_id,
                 "🎉 *Félicitations !*\n"
-                "Ton accès a été validé avec succès.\n"
-                "Clique sur le bouton ci-dessous pour rejoindre le canal privé 👇🏼",
+                "Ta capture a été validée avec succès.\n\n"
+                "Clique sur le premier bouton ci-dessous pour rejoindre le canal privé 👇🏼\n"
+                "Dès que tu rejoins, clique sur le deuxième bouton pour recevoir ton message de bienvenue directement dans le canal ☺️🎉",
                 parse_mode='Markdown',
-                reply_markup=types.InlineKeyboardMarkup().add(
-                    types.InlineKeyboardButton("✅ REJOINDRE KEVYFLOW AFRICA", url=INVITE_LINK)
-                ))
+                reply_markup=markup)
+
             del pending_payments[user_id]
             bot.answer_callback_query(call.id, "Utilisateur validé ✅")
 
@@ -91,8 +97,8 @@ def callback_dispatcher(call):
 
     elif data.startswith("joined_"):
         _, user_id, username = data.split("_")
-        bot.send_message(CHANNEL_ID, f"🎉 Bienvenue à @{username} dans le canal privé 🔐✨")
-        bot.answer_callback_query(call.id, "Bienvenue confirmée ! ✅")
+        bot.send_message(CHANNEL_ID, f"🎉 Un nouveau membre a été validé !\n🔥 Bienvenue à @{username} dans KevyFlow Africa 🌍🔐")
+        bot.answer_callback_query(call.id, "Bienvenue envoyée dans le canal ! ✅")
 
 @bot.message_handler(func=lambda message: True)
 def fallback(message):
