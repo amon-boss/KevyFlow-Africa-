@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KevyFlow Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>👑 KevyFlow Dashboard</h1>
+
+    <form method="POST" action="/ajouter">
+      <input type="text" name="username" placeholder="Username Telegram" required>
+      <input type="number" name="user_id" placeholder="User ID" required>
+      <button type="submit">➕ Ajouter un membre</button>
+    </form>
+
+    <h2>Membres validés 🔐</h2>
+    {% if membres %}
+      <ul>
+        {% for m in membres %}
+          <li>
+            <strong>@{{ m.username }}</strong> (ID: {{ m.id }})
+            <a href="/refuser/{{ m.id }}" class="refuse-btn">❌</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Aucun membre validé pour l’instant…</p>
+    {% endif %}
+  </div>
+</body>
+</html>
