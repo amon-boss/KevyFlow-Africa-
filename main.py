@@ -15,14 +15,14 @@ pending_payments = {}
 def send_welcome(message):
     welcome_msg = (
         "👋 Salut et bienvenue sur KevyFlowBot !😎⚔️\n\n"
-        "Ce canal est réservé aux membres ayant payé l'accès🔐\n\n"
-        "🎟️ PRIX À PAYER: 2500F\n\n"
-        "Étapes à suivre pour payer:\n"
-        "1️⃣ Choisisez une méthode de paiement 💵\n"
+        "Ce canal est réservé aux membres ayant payé l'accès 🔐\n\n"
+        "🎟️ *PRIX À PAYER:* 3000F\n\n"
+        "Étapes à suivre pour payer :\n"
+        "1️⃣ Choisissez une méthode de paiement 💵\n"
         "2️⃣ Envoyez une capture d'écran du paiement 🧾\n"
         "3️⃣ Votre capture sera traitée, après validation vous serez ajouté ✅"
     )
-    bot.send_message(message.chat.id, welcome_msg)
+    bot.send_message(message.chat.id, welcome_msg, parse_mode='Markdown')
     show_payment_options(message.chat.id)
 
 PAYMENT_METHODS = [
@@ -36,7 +36,7 @@ def show_payment_options(chat_id):
     markup = types.InlineKeyboardMarkup()
     for label, value in PAYMENT_METHODS:
         markup.add(types.InlineKeyboardButton(label, callback_data=value))
-    bot.send_message(chat_id, "Choisissez une méthode de paiement ci-dessous ⬇️", reply_markup=markup)
+    bot.send_message(chat_id, "Choisis ta méthode de paiement ⬇️", reply_markup=markup)
 
 @bot.message_handler(content_types=['photo'])
 def handle_screenshot(message):
@@ -62,9 +62,8 @@ def callback_dispatcher(call):
     if data in [pm[1] for pm in PAYMENT_METHODS]:
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id,
-            f"✅ Vous avez choisi *{data}*.\n\n"
-            "Veuillez effectuer le paiement, faire une capture d'écran du paiement\n"
-            "et m'envoyer la capture ici.🤝\n"
+            f"✅ Vous avez choisi *{data}*.\n"
+            "Veuillez effectuer le paiement, faire une capture d'écran du paiement et m'envoyer la capture ici.🤝\n"
             "Je vous attends ☺️🙏🏼",
             parse_mode='Markdown')
 
@@ -74,23 +73,19 @@ def callback_dispatcher(call):
         if payment:
             bot.send_message(user_id,
                 "🎉 *Félicitations !*\n"
-                "Votre paiement a été vérifié avec succès.\n"
-                "Bienvenue dans KevyFlow Africa 🌍 !",
-                parse_mode='Markdown')
-            markup = types.InlineKeyboardMarkup()
-            markup.add(types.InlineKeyboardButton("✅ REJOINS !", callback_data=f"joined_{user_id}_{payment['username']}"))
-            bot.send_message(user_id, f"{INVITE_LINK}", reply_markup=markup)
+                "Ton accès a été validé avec succès.\n"
+                "Clique sur le bouton ci-dessous pour rejoindre le canal privé 👇🏼",
+                parse_mode='Markdown',
+                reply_markup=types.InlineKeyboardMarkup().add(
+                    types.InlineKeyboardButton("✅ REJOINDRE KEVYFLOW AFRICA", url=INVITE_LINK)
+                ))
             del pending_payments[user_id]
             bot.answer_callback_query(call.id, "Utilisateur validé ✅")
 
     elif data.startswith("refuse_"):
         user_id = int(data.split("_")[1])
         if pending_payments.get(user_id):
-            bot.send_message(user_id,
-                "😩 *Dommage !*\n"
-                "Votre preuve de paiement a été refusée.\n"
-                "Merci de vérifier et réessayer.",
-                parse_mode='Markdown')
+            bot.send_message(user_id, "😩 *Dommage !*\nTon paiement n'a pas été validé. Merci de vérifier et réessayer.", parse_mode='Markdown')
             del pending_payments[user_id]
             bot.answer_callback_query(call.id, "Paiement refusé ❌")
 
